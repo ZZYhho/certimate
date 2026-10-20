@@ -6,6 +6,9 @@ import dayjs from "dayjs";
 
 import { type CertificateModel } from "@/domain/certificate";
 
+import { useCertificateCompatibility } from "@/hooks/useCertificateCompatibility";
+
+import CertificateCompatibility from "./CertificateCompatibility";
 import CertificateDownloadModal from "./CertificateDownloadModal";
 
 export interface CertificateDetailProps {
@@ -18,6 +21,7 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
   const { t } = useTranslation();
 
   const { message } = App.useApp();
+  const compatibility = useCertificateCompatibility([data.id], data.updated || data.certificate);
 
   return (
     <div {...props}>
@@ -61,6 +65,10 @@ const CertificateDetail = ({ data, ...props }: CertificateDetailProps) => {
 
         <Form.Item label={t("certificate.props.key_algorithm")}>
           <Input value={data.keyAlgorithm} variant="filled" placeholder="" />
+        </Form.Item>
+
+        <Form.Item label={t("certificate.compatibility.title")}>
+          <CertificateCompatibility state={compatibility[data.id]} detailed />
         </Form.Item>
 
         <Form.Item label={t("certificate.props.certificate")}>

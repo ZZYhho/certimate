@@ -1,5 +1,7 @@
 import { type CertificateFormatType } from "@/domain/certificate";
 
+import { type CertificateCompatibilityResult } from "@/domain/certificateCompatibility";
+
 import { post as httpPost } from "./_api";
 
 export const download = (
@@ -24,4 +26,22 @@ export const revoke = (certificateId: string) => {
   return httpPost({
     url: `/api/certificates/${encodeURIComponent(certificateId)}/revoke`,
   });
+};
+
+export const analyzeCompatibility = async (certificate: string) => {
+  const response = await httpPost<CertificateCompatibilityResult>({
+    url: "/api/certificates/compatibility/analyze",
+    body: { certificate },
+    requestKey: null,
+  });
+  return response.data;
+};
+
+export const batchCompatibility = async (certificateIds: string[]) => {
+  const response = await httpPost<{ results: Record<string, CertificateCompatibilityResult> }>({
+    url: "/api/certificates/compatibility/batch",
+    body: { certificateIds },
+    requestKey: null,
+  });
+  return response.data.results;
 };

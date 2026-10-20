@@ -123,5 +123,57 @@
     "key_algorithm": "私钥算法",
     "created_at": "创建时间",
     "updated_at": "更新时间"
+  },
+
+  "compatibility": {
+    "title": "Android 兼容性（预计）",
+    "idle": "输入 PEM 证书后可评估 Android 兼容性",
+    "deferred": "读取证书后，可在 SSL 证书页查看 Android 兼容性",
+    "loading": "正在评估 Android 兼容性…",
+    "unavailable": "兼容性分析暂不可用，不影响保存",
+    "basis": "基于 AOSP 系统根证书库",
+    "scope": "基于 AOSP 系统根证书库评估。实际连接还受设备、App 和服务器配置影响。",
+    "bounds": "评估范围：Android {{oldest}}–{{newest}}",
+    "metadata": "根证书数据：{{version}} · 评估时间：{{time}}",
+    "details": "按 Android 版本查看结果",
+    "profile_status": "评估结果",
+    "profile_reason": "原因",
+    "roots": "验证路径中的根证书",
+    "summary": {
+      "minimum": "预计 Android {{version}}+（限评估范围内）",
+      "ranges": "预计支持 Android：{{versions}}（部分区间）",
+      "not_trusted": "评估的 Android 系统根证书库不信任此链",
+      "unknown": "Android 兼容性未知",
+      "invalid": "证书链未通过本次评估"
+    },
+    "profile": {
+      "trusted": "预计受信任",
+      "not_trusted": "不信任",
+      "unknown": "未知",
+      "invalid": "无效"
+    },
+    "reason": {
+      "trusted_system_root": "所提供证书链可连接到此 AOSP 系统库中的根证书。",
+      "supported_versions": "所提供证书链在列出的 AOSP 版本中受信任。",
+      "root_not_in_system_store": "此系统库未包含证书链的根证书。",
+      "incomplete_chain": "证书链可能不完整，未找到完整的受信任路径。",
+      "invalid_pem": "输入不是有效的 PEM 证书链。",
+      "invalid_certificate": "无法读取证书内容。",
+      "certificate_too_large": "证书超过分析大小限制。",
+      "too_many_certificates": "证书链超过证书数量限制。",
+      "not_yet_valid": "证书链中存在尚未生效的证书。",
+      "expired": "证书链中存在已过期的证书。",
+      "invalid_server_auth_usage": "证书不适用于 TLS 服务器身份验证。",
+      "invalid_chain_constraints": "证书链约束验证失败。",
+      "invalid_signature": "证书签名验证失败。",
+      "unsupported_algorithm": "此证书算法暂无法可靠评估其 Android 兼容性。",
+      "unsupported_critical_extension": "此证书包含暂不支持的关键扩展，无法可靠评估。",
+      "unsupported_trust_anchor": "可能匹配的历史根证书暂无法可靠评估。",
+      "unsupported_certificate_format": "此证书使用的历史格式暂无法可靠评估。",
+      "analysis_limit": "证书链过于复杂，暂无法完成评估。",
+      "trust_anchor_validity_not_emulated": "历史根证书的有效期处理存在版本差异，暂无法可靠判断。",
+      "certificate_not_found": "证书不存在或暂不可用。",
+      "other": "暂无法可靠判断此证书的 Android 兼容性。"
+    }
   }
 }

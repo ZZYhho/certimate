@@ -123,5 +123,57 @@
     "key_algorithm": "Key algorithm",
     "created_at": "Created at",
     "updated_at": "Updated at"
+  },
+
+  "compatibility": {
+    "title": "Android compatibility (estimated)",
+    "idle": "Enter a PEM certificate to assess Android compatibility",
+    "deferred": "Once the certificate is read, view Android compatibility on the SSL certificates page",
+    "loading": "Assessing Android compatibility…",
+    "unavailable": "Compatibility estimate unavailable; saving is unaffected",
+    "basis": "Based on AOSP system roots",
+    "scope": "Assessed against AOSP system root stores. Actual connections also depend on the device, app and server configuration.",
+    "bounds": "Assessed Android {{oldest}}–{{newest}}",
+    "metadata": "Root data: {{version}} · Assessed at {{time}}",
+    "details": "Results by Android version",
+    "profile_status": "Assessment",
+    "profile_reason": "Reason",
+    "roots": "Roots in the verification path",
+    "summary": {
+      "minimum": "Estimated Android {{version}}+ (within assessed range)",
+      "ranges": "Estimated supported Android: {{versions}} (partial ranges)",
+      "not_trusted": "Not trusted by assessed Android system roots",
+      "unknown": "Android compatibility unknown",
+      "invalid": "Certificate chain invalid for this assessment"
+    },
+    "profile": {
+      "trusted": "Expected to be trusted",
+      "not_trusted": "Not trusted",
+      "unknown": "Unknown",
+      "invalid": "Invalid"
+    },
+    "reason": {
+      "trusted_system_root": "The supplied chain reaches a root in this AOSP system store.",
+      "supported_versions": "The supplied chain is trusted in the listed Android versions.",
+      "root_not_in_system_store": "The chain root is absent from this system store.",
+      "incomplete_chain": "The chain may be incomplete; no complete trusted path was found.",
+      "invalid_pem": "The input is not a valid PEM certificate chain.",
+      "invalid_certificate": "The certificate could not be read.",
+      "certificate_too_large": "The certificate exceeds the analysis size limit.",
+      "too_many_certificates": "The chain exceeds the certificate count limit.",
+      "not_yet_valid": "A certificate in the chain is not yet valid.",
+      "expired": "A certificate in the chain has expired.",
+      "invalid_server_auth_usage": "The certificate is not valid for TLS server authentication.",
+      "invalid_chain_constraints": "The certificate chain did not pass validation.",
+      "invalid_signature": "A certificate signature could not be validated.",
+      "unsupported_algorithm": "Android compatibility cannot yet be assessed reliably for this certificate algorithm.",
+      "unsupported_critical_extension": "A critical extension in this certificate prevents a reliable assessment.",
+      "unsupported_trust_anchor": "A potentially matching historical root certificate cannot yet be assessed reliably.",
+      "unsupported_certificate_format": "This historical certificate format cannot yet be assessed reliably.",
+      "analysis_limit": "The certificate chain is too complex to complete this assessment.",
+      "trust_anchor_validity_not_emulated": "Historical Android versions handle root certificate validity differently, so this result is uncertain.",
+      "certificate_not_found": "The certificate was not found or is unavailable.",
+      "other": "Android compatibility cannot be determined reliably for this certificate."
+    }
   }
 }

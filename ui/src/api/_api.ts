@@ -1,10 +1,10 @@
-﻿import { ClientResponseError, type SendOptions } from "pocketbase";
+import { ClientResponseError, type SendOptions } from "pocketbase";
 
 import { getPocketBase } from "@/repository/_pocketbase";
 
 const pb = getPocketBase();
 
-type Options = Pick<SendOptions, "body" | "headers"> & {
+type Options = Pick<SendOptions, "body" | "headers" | "requestKey"> & {
   url: string;
 };
 

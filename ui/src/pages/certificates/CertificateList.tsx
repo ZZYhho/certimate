@@ -8,11 +8,13 @@ import dayjs from "dayjs";
 import { ClientResponseError } from "pocketbase";
 
 import { revoke as revokeCertificate } from "@/api/certificates";
+import CertificateCompatibility from "@/components/certificate/CertificateCompatibility";
 import CertificateDetailDrawer from "@/components/certificate/CertificateDetailDrawer";
 import Empty from "@/components/Empty";
 import Show from "@/components/Show";
 import { CERTIFICATE_SOURCES, type CertificateModel } from "@/domain/certificate";
 import { useAppSettings, useZustandShallowSelector } from "@/hooks";
+import { useCertificateCompatibility } from "@/hooks/useCertificateCompatibility";
 import { get as getCertificate, list as listCertificates, remove as removeCertificate } from "@/repository/certificate";
 import { usePersistenceSettingsStore } from "@/stores/settings";
 import { unwrapErrMsg } from "@/utils/error";
@@ -54,6 +56,11 @@ const CertificateList = () => {
   const [tableData, setTableData] = useState<CertificateModel[]>([]);
   const [tableTotal, setTableTotal] = useState<number>(0);
   const [tableSelectedRowKeys, setTableSelectedRowKeys] = useState<string[]>([]);
+  const [compatibilityRevision, setCompatibilityRevision] = useState(0);
+  const compatibility = useCertificateCompatibility(
+    tableData.map((item) => item.id),
+    compatibilityRevision
+  );
   const tableColumns: TableProps<CertificateModel>["columns"] = [
     {
       key: "subjectName",
@@ -149,6 +156,12 @@ const CertificateList = () => {
           </Typography.Text>
         </div>
       ),
+    },
+    {
+      key: "androidCompatibility",
+      title: t("certificate.compatibility.title"),
+      width: 240,
+      render: (_, record) => <CertificateCompatibility state={compatibility[record.id]} />,
     },
     {
       key: "source",
@@ -319,6 +332,7 @@ const CertificateList = () => {
       },
       onSuccess: (res) => {
         setTableData(res.items);
+        setCompatibilityRevision((previous) => previous + 1);
         setTableTotal(res.totalItems);
         setTableSelectedRowKeys([]);
       },

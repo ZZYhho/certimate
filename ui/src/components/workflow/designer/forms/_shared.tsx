@@ -9,6 +9,7 @@ import { isEqual } from "radash";
 import Show from "@/components/Show";
 import { unwrapErrMsg } from "@/utils/error";
 import { applyTrimmedFormValues } from "@/utils/form";
+import { notifyNodeConfigSaved } from "@/utils/workflowNodeSaved";
 
 import { type NodeRegistry } from "../nodes/typings";
 
@@ -22,9 +23,10 @@ export interface NodeConfigDrawerProps {
   node: FlowNodeEntity;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onSaved?: (values: Record<string, unknown>) => void | Promise<void>;
 }
 
-export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, form: formInst, loading, node, ...props }: NodeConfigDrawerProps) => {
+export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, form: formInst, loading, node, onSaved, ...props }: NodeConfigDrawerProps) => {
   const { t } = useTranslation();
 
   const ctx = useClientContext();
@@ -61,6 +63,7 @@ export const NodeConfigDrawer = ({ children, afterClose, anchor, footer = true, 
     try {
       node.form!.setValueIn("config", formValues);
       node.form!.validate();
+      notifyNodeConfigSaved(onSaved, formValues);
     } catch (err) {
       notification.error({ title: t("common.text.request_error"), description: unwrapErrMsg(err) });
 

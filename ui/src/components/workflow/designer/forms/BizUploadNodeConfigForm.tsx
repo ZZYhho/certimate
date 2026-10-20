@@ -5,9 +5,11 @@ import { type AnchorProps, Form, type FormInstance, Input, Radio } from "antd";
 import { createSchemaFieldRule } from "antd-zod";
 import { z } from "zod";
 
+import CertificateCompatibility from "@/components/certificate/CertificateCompatibility";
 import FileTextInput from "@/components/FileTextInput";
 import Show from "@/components/Show";
 import Tips from "@/components/Tips";
+import { type CertificateCompatibilityState } from "@/domain/certificateCompatibility";
 import { type WorkflowNodeConfigForBizUpload, defaultNodeConfigForBizUpload } from "@/domain/workflow";
 import { useAntdForm } from "@/hooks";
 import { getCertificateSubjectAltNames as getX509SubjectAltNames, validatePEMCertificate, validatePEMPrivateKey } from "@/utils/x509";
@@ -18,6 +20,7 @@ import { NodeType } from "../nodes/typings";
 export interface BizUploadNodeConfigFormProps {
   form: FormInstance;
   node: FlowNodeEntity;
+  compatibility: CertificateCompatibilityState;
 }
 
 const UPLOAD_SOURCE_FORM = "form" as const;
@@ -84,6 +87,10 @@ const BizUploadNodeConfigForm = ({ node, ...props }: BizUploadNodeConfigFormProp
               <FileTextInput autoSize={{ minRows: 3, maxRows: 10 }} placeholder={t("workflow_node.upload.form.certificate_pem.placeholder")} />
             </Form.Item>
 
+            <Form.Item label={t("certificate.compatibility.title")}>
+              <CertificateCompatibility state={props.compatibility} detailed />
+            </Form.Item>
+
             <Form.Item name="privateKey" label={t("workflow_node.upload.form.private_key_pem.label")} rules={[formRule]}>
               <FileTextInput autoSize={{ minRows: 3, maxRows: 10 }} placeholder={t("workflow_node.upload.form.private_key_pem.placeholder")} />
             </Form.Item>
@@ -98,6 +105,10 @@ const BizUploadNodeConfigForm = ({ node, ...props }: BizUploadNodeConfigFormProp
               <Input placeholder={t("workflow_node.upload.form.certificate_path.placeholder")} />
             </Form.Item>
 
+            <Form.Item label={t("certificate.compatibility.title")}>
+              <CertificateCompatibility state={{ phase: "deferred" }} />
+            </Form.Item>
+
             <Form.Item name="privateKey" label={t("workflow_node.upload.form.private_key_path.label")} rules={[formRule]}>
               <Input placeholder={t("workflow_node.upload.form.private_key_path.placeholder")} />
             </Form.Item>
@@ -110,6 +121,10 @@ const BizUploadNodeConfigForm = ({ node, ...props }: BizUploadNodeConfigFormProp
 
             <Form.Item name="certificate" label={t("workflow_node.upload.form.certificate_url.label")} rules={[formRule]}>
               <Input placeholder={t("workflow_node.upload.form.certificate_url.placeholder")} />
+            </Form.Item>
+
+            <Form.Item label={t("certificate.compatibility.title")}>
+              <CertificateCompatibility state={{ phase: "deferred" }} />
             </Form.Item>
 
             <Form.Item name="privateKey" label={t("workflow_node.upload.form.private_key_url.label")} rules={[formRule]}>
