@@ -1,6 +1,7 @@
 package dtos
 
 import (
+	"github.com/certimate-go/certimate/internal/certcompat"
 	"github.com/certimate-go/certimate/internal/domain"
 )
 
@@ -23,3 +24,15 @@ type CertificateRevokeReq struct {
 }
 
 type CertificateRevokeResp struct{}
+
+type CertificateCompatibilityAnalyzeReq struct {
+	Certificate string `json:"certificate"`
+}
+
+type CertificateCompatibilityBatchReq struct {
+	CertificateIds []string `json:"certificateIds"`
+}
+
+type CertificateCompatibilityBatchResp struct {
+	Results map[string]certcompat.Result `json:"results"`
+}

@@ -184,3 +184,31 @@ func (r *CertificateRepository) castRecordToModel(record *core.Record) (*domain.
 	}
 	return certificate, nil
 }
+
+// GetCertificatePEMsByIds reads only the public chain for live records in one
+// query. Private keys are deliberately excluded from compatibility analysis.
+func (r *CertificateRepository) GetCertificatePEMsByIds(ctx context.Context, ids []string) (map[string]string, error) {
+	result := make(map[string]string, len(ids))
+	if len(ids) == 0 {
+		return result, nil
+	}
+	values := make([]any, len(ids))
+	for i, id := range ids {
+		values[i] = id
+	}
+	var rows []struct {
+		Id          string `db:"id"`
+		Certificate string `db:"certificate"`
+	}
+	err := app.GetApp().RecordQuery(domain.CollectionNameCertificate).
+		Select("id", "certificate").WithContext(ctx).
+		AndWhere(dbx.In("id", values...)).
+		AndWhere(dbx.Or(dbx.HashExp{"deleted": nil}, dbx.HashExp{"deleted": ""})).All(&rows)
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		result[row.Id] = row.Certificate
+	}
+	return result, nil
+}

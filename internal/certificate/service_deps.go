@@ -13,6 +13,7 @@ type acmeAccountRepository interface {
 }
 
 type certificateRepository interface {
+	GetCertificatePEMsByIds(ctx context.Context, ids []string) (map[string]string, error)
 	GetById(ctx context.Context, id string) (*domain.Certificate, error)
 	Save(ctx context.Context, certificate *domain.Certificate) (*domain.Certificate, error)
 	DeleteWithExprs(ctx context.Context, exprs ...dbx.Expression) (int, error)
