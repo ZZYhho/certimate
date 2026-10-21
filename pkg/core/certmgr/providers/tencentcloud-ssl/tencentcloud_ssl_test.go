@@ -36,20 +36,22 @@ func TestUploadPreservesReplacementChain(t *testing.T) {
 	leaf, oldIssuer, newIssuer := certificate(1), certificate(2), certificate(3)
 	wantedChain := leaf + newIssuer
 	for _, tt := range []struct {
-		name        string
-		duplicate   bool
-		existing    string
-		readDenied  bool
-		retryFails  bool
-		retryReuses bool
-		wantCalls   int
-		wantID      string
-		wantError   bool
+		name         string
+		duplicate    bool
+		omitRepeatID bool
+		existing     string
+		readDenied   bool
+		retryFails   bool
+		retryReuses  bool
+		wantCalls    int
+		wantID       string
+		wantError    bool
 	}{
-		{name: "new upload", wantCalls: 1, wantID: "new-id"},
+		{name: "new upload", existing: wantedChain, wantCalls: 2, wantID: "new-id"},
 		{name: "same full chain reuses existing", duplicate: true, existing: wantedChain, wantCalls: 2, wantID: "old-id"},
 		{name: "same chain with CRLF", duplicate: true, existing: strings.ReplaceAll(wantedChain, "\n", "\r\n"), wantCalls: 2, wantID: "old-id"},
 		{name: "same leaf with changed issuer", duplicate: true, existing: leaf + oldIssuer, wantCalls: 3, wantID: "new-id"},
+		{name: "duplicate without RepeatCertId", duplicate: true, omitRepeatID: true, existing: leaf + oldIssuer, wantCalls: 3, wantID: "new-id"},
 		{name: "missing chain", duplicate: true, wantCalls: 3, wantID: "new-id"},
 		{name: "no additional read permission", duplicate: true, readDenied: true, wantCalls: 3, wantID: "new-id"},
 		{name: "replacement upload failure", duplicate: true, retryFails: true, wantCalls: 3, wantError: true},
@@ -80,12 +82,19 @@ func TestUploadPreservesReplacementChain(t *testing.T) {
 					response = map[string]any{"CertificateId": "new-id"}
 					if (calls == 1 && tt.duplicate) || (calls == 3 && tt.retryReuses) {
 						response = map[string]any{"CertificateId": "old-id", "RepeatCertId": "old-id"}
+						if tt.omitRepeatID {
+							delete(response, "RepeatCertId")
+						}
 					}
 					if calls == 3 && tt.retryFails {
 						response = map[string]any{"Error": map[string]string{"Code": "AuthFailure.UnauthorizedOperation", "Message": "upload denied"}}
 					}
 				case 2:
-					if req.Header.Get("X-TC-Action") != "DescribeCertificateDetail" || payload["CertificateId"] != "old-id" {
+					id := "new-id"
+					if tt.duplicate {
+						id = "old-id"
+					}
+					if req.Header.Get("X-TC-Action") != "DescribeCertificateDetail" || payload["CertificateId"] != id {
 						t.Fatal("must inspect the duplicate certificate before reusing it")
 					}
 					response = map[string]any{"CertificatePublicKey": tt.existing}

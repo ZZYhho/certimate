@@ -82,29 +82,28 @@ func (c *Certmgr) Upload(ctx context.Context, certPEM, privkeyPEM string) (*Uplo
 		return nil, fmt.Errorf("ssl.UploadCertificate returned no certificate ID")
 	}
 
-	// Tencent Cloud deduplicates by the leaf fingerprint. Reuse an existing
-	// certificate only when its complete chain also matches the requested one.
-	if repeatedID := lo.FromPtr(uploadCertificateResp.Response.RepeatCertId); repeatedID != "" {
-		describeReq := tcssl.NewDescribeCertificateDetailRequest()
-		describeReq.CertificateId = common.StringPtr(repeatedID)
-		describeResp, describeErr := c.sdkClient.DescribeCertificateDetailWithContext(ctx, describeReq)
-		if describeErr == nil && describeResp.Response != nil &&
-			xcert.EqualCertificateChainsFromPEM(certPEM, lo.FromPtr(describeResp.Response.CertificatePublicKey)) {
-			return &UploadResult{CertId: repeatedID}, nil
-		}
+	// Tencent Cloud can deduplicate by the leaf fingerprint without populating
+	// RepeatCertId. Check the returned record's full chain before reusing it.
+	certificateID := *uploadCertificateResp.Response.CertificateId
+	describeReq := tcssl.NewDescribeCertificateDetailRequest()
+	describeReq.CertificateId = common.StringPtr(certificateID)
+	describeResp, describeErr := c.sdkClient.DescribeCertificateDetailWithContext(ctx, describeReq)
+	if describeErr == nil && describeResp.Response != nil &&
+		xcert.EqualCertificateChainsFromPEM(certPEM, lo.FromPtr(describeResp.Response.CertificatePublicKey)) {
+		return &UploadResult{CertId: certificateID}, nil
+	}
 
-		// If the chain differs or cannot be read, create a separate cloud record
-		// instead of silently deploying the old chain. No extra read permission
-		// is required for callers that can already upload certificates.
-		uploadCertificateReq.Repeatable = common.BoolPtr(true)
-		uploadCertificateResp, err = c.sdkClient.UploadCertificateWithContext(ctx, uploadCertificateReq)
-		if err != nil {
-			return nil, fmt.Errorf("failed to upload replacement certificate chain: %w", err)
-		}
-		if uploadCertificateResp.Response == nil || lo.FromPtr(uploadCertificateResp.Response.CertificateId) == "" ||
-			lo.FromPtr(uploadCertificateResp.Response.CertificateId) == repeatedID {
-			return nil, fmt.Errorf("ssl.UploadCertificate did not create a replacement certificate chain")
-		}
+	// If the chain differs or cannot be read, create a separate cloud record
+	// instead of silently deploying the old chain. No extra read permission
+	// is required for callers that can already upload certificates.
+	uploadCertificateReq.Repeatable = common.BoolPtr(true)
+	uploadCertificateResp, err = c.sdkClient.UploadCertificateWithContext(ctx, uploadCertificateReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload replacement certificate chain: %w", err)
+	}
+	if uploadCertificateResp.Response == nil || lo.FromPtr(uploadCertificateResp.Response.CertificateId) == "" ||
+		lo.FromPtr(uploadCertificateResp.Response.CertificateId) == certificateID {
+		return nil, fmt.Errorf("ssl.UploadCertificate did not create a replacement certificate chain")
 	}
 
 	return &UploadResult{
